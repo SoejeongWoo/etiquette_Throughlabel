@@ -42,16 +42,20 @@ STEP1(스캔)~STEP2(제조사 DB)를 위한 원천 데이터를 실제 카메라
 명시해 실제 OCR 결과(`ocr_result`)와 혼동되지 않도록 한다.
 
 ### 산출물
+파일 위치는 모두 `data/olive_crwl/`(csv·xlsx·json·리포트 전부 이 폴더로 정리, 저장소 루트는 코드/문서만 유지).
+
 - `products.csv` / `products.xlsx` — 상품 1건당 1행: `product_id`, `category`, `product_name`, `brand_name`, `manufacturer`, `brand`, `manufacturer_confidence`, `ingredient`, `data_source`
 - `reviews.csv` / `reviews.xlsx` — 리뷰 1건당 1행, `product_id`로 products와 연결
 - `manufacturer_map.json` — STEP2 산출물. `manufacturer_confidence=high`인 상품만으로 제조사 기준 브랜드 그룹화, `has_alternative`(같은 공장을 공유하는 서로 다른 브랜드 2개 이상 여부) 포함
+
+> 참고: 저장소 루트의 `data/`(예: `data/products.csv`, `data/ingredients.csv`, `data/standard_ingredient_names.csv`)는 Supabase 적재용으로 별도 정리된 팀 공용 데이터이며, 위 `data/olive_crwl/` 산출물과는 스키마·용도가 다르다. 혼동 주의.
 
 ### 실행
 `olive_crwl_clean.ipynb`의 셀을 순서대로 실행하면 `CATEGORY_IDS`에 등록된 카테고리를 크롤링하여 위 세 산출물을 생성한다. 규모 조절(`max_products`, `max_reviews_per_product`)과 카테고리 추가 방법은 노트북 하단 안내 셀을 참고한다.
 
 ## 성분·가격 비교 테이블 (8개 카테고리 × 50개)
-`{category}_price_ingredient_50.csv` / `.xlsx` — cream, toner, serum, suncream, lotion, essence, ampoule, mist.
-`products.csv`와는 **별도로 생성된 데이터셋**이며 스키마도 다르다(`product_id` 없음). `goods_no`로 조인은 가능하지만
+`data/olive_crwl/{category}_price_ingredient_50.csv` / `.xlsx` — cream, toner, serum, suncream, lotion, essence, ampoule, mist.
+`data/olive_crwl/products.csv`와는 **별도로 생성된 데이터셋**이며 스키마도 다르다(`product_id` 없음). `goods_no`로 조인은 가능하지만
 카테고리당 실제로 겹치는 상품은 일부뿐이다(예: cream 50개 중 `products.csv`와 겹치는 건 20개) — manufacturer/brand는
 전체 행에 채워지지 않는다.
 
@@ -63,7 +67,14 @@ STEP1(스캔)~STEP2(제조사 DB)를 위한 원천 데이터를 실제 카메라
 - **알려진 한계(미해결)**: 본품+증정품 세트 상품(예: 빌리프)은 두 상품의 전성분이 이어붙어 있어 `ingredient` 길이가 비정상적으로 길다(100개 이상). 분리 로직이 없으므로 성분 개수·비율 계산 시 이런 행은 왜곡될 수 있다.
 - 위 8개 표를 만든 크롤링 스크립트는 아직 이 저장소에 없다(세션 중 임시 스크립트로 실행). `olive_crwl_clean.ipynb`와는 별개 파이프라인이며, 재크롤링/확장이 필요하면 스크립트부터 새로 작성해야 한다.
 
-## 성분-효과 매핑 (`ingredient_effect_mapping.xlsx`)
+## 스킨케어 전체 크롤링 (`{category}_price_ingredient_all.csv` / `.xlsx`)
+위 "50개씩" 표와 별개로, 올리브영 스킨케어 5개 서브카테고리 **전체**(스킨/토너 383·에센스/세럼/앰플 938·크림 773·로션 273·미스트/오일 157, 총 약 2,524개)를 크롤링하는 작업.
+스키마는 50개 표와 동일하되 `essenceSerumAmpoule`은 별도 필터링 없이 올리브영의 실제 통합 카테고리 그대로(위 essence/ampoule 근사 데이터의 한계가 없음) 담는다.
+
+- 상품당 실측 약 5초가 걸려 전체 완료까지 3.5~4시간 소요. 중간에 끊겨도 이어할 수 있도록 상품 1건 크롤링할 때마다 `{category}_price_ingredient_all_raw.csv`에 즉시 append하고, 카테고리 하나가 끝날 때마다 공통/차별화 컬럼을 계산해 최종 파일을 만든다.
+- 이 문서 작성 시점 기준 mistOil·lotion·skinToner는 완료, cream·essenceSerumAmpoule은 진행 중이라 저장소 루트에 `cream_price_ingredient_all_raw.csv`(작업 중 파일이라 이동 보류)가 남아있을 수 있다. 완료되는 대로 `data/olive_crwl/`로 옮길 것.
+
+## 성분-효과 매핑 (`data/olive_crwl/ingredient_effect_mapping.xlsx`)
 위 8개 표의 `차별화_ingredient`만을 대상으로 성분의 화장품학적 기능을 태깅한 결과. 시트 3개로 구성된다.
 
 | 시트 | 내용 |
@@ -76,3 +87,12 @@ STEP1(스캔)~STEP2(제조사 DB)를 위한 원천 데이터를 실제 카메라
 - 커버리지: 차별화_ingredient 고유 성분 2,454개 중 **빈도 10회 이상인 180개만** 수작업 매핑(전체 등장 횟수의 약 60% 커버). 나머지 저빈도 성분은 미분류로 남아 있다.
 - `label_confidence=low`인 항목(3건)은 검수 대상이다(`검수필요=Y`).
 - **주의**: 부틸렌글라이콜·1,2-헥산다이올처럼 등장 빈도가 가장 높은 성분 다수는 실제로는 용제·보존·점증 같은 제형 보조 성분이라 의도적으로 "효과 조합" 집계에서 제외했다. 빈도가 높다고 곧 효과 성분인 것은 아니다.
+- **성분명 정규화**: 괄호 안 농도표기(%, ppm)에 포함된 쉼표 때문에 성분명이 조각나는 문제(예: "병풀추출물(1,234ppm)" → "병풀추출물(1" + "234ppm)")를 발견해, 쉼표 분리 이전에 농도·CI색소코드 괄호를 제거하도록 수정했다. "디/다이", "트리/트라이" 구식 표기 통일도 반영. 이 정규화 이후 고유 성분 수가 2,454개 → 1,985개로 줄었고, 8개 표의 공통_ingredient도 재계산해 반영했다(로션·앰플의 정제수가 정규화로 공통 기준을 새로 충족).
+
+## 성분 조합-효과 매핑 (`data/olive_crwl/ingredient_combination_effect_mapping.xlsx`)
+차별화_ingredient 중 액티브/UV필터 성분끼리 2~4개 조합했을 때 실제로 통계적으로 유의미하게 자주 같이 쓰이는지를 **lift**(동시 등장 빈도 ÷ 우연히 같이 나올 것으로 기대되는 빈도)로 분석한 결과.
+
+- 단순 빈도 1위(나이아신아마이드+아데노신, 158개 상품)는 lift가 1.5에 불과해 "각자 인기라서 우연히 같이 나온 것"으로 판정됨 — 조합 자체의 시너지 근거 없음.
+- 반대로 lift가 매우 높은 조합(선크림 UV필터 3~4종 병용, 히알루론산 다분자량 조합, 아미노산(글라이신+세린) 조합 등)은 실제 처방 전략으로 해석 가능.
+- 시트 3개: `조합_효과_매핑(핵심)`(큐레이션된 8개 조합 해석), `원본_2조합_lift` / `원본_3조합_lift`(전체 원본 데이터, 추가 탐색용).
+- confidence=medium/low로 표기된 항목(인도 허브 6종 복합물 등)은 정확한 상용 원료명을 특정하지 못했으므로 확인 필요.
