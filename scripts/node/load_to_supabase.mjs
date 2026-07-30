@@ -1,5 +1,5 @@
-// data/{products,ingredients,product_ingredients}.csv를 Supabase에 적재.
-// 실행 전: scripts/normalize_ingredients.py 로 data/*.csv 생성, .env에 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 설정.
+// data/supabase/{products,ingredients,product_ingredients}.csv를 Supabase에 적재.
+// 실행 전: scripts/python/normalize_ingredients.py 로 data/supabase/*.csv 생성, .env에 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 설정.
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
 import { parse } from "csv-parse/sync";
@@ -7,8 +7,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const DATA_DIR = path.join(ROOT, "data");
+const ROOT = path.dirname(path.dirname(path.dirname(fileURLToPath(import.meta.url))));
+const DATA_DIR = path.join(ROOT, "data", "supabase");
 const BATCH_SIZE = 500;
 
 const url = process.env.SUPABASE_URL;
@@ -75,7 +75,7 @@ async function main() {
     source_frequency: toNumber(r.source_frequency),
   }));
 
-  // data/*.csv가 정본(source of truth)이라 재실행할 때마다 전체를 다시 동기화한다.
+  // data/supabase/*.csv가 정본(source of truth)이라 재실행할 때마다 전체를 다시 동기화한다.
   // (정규화 규칙이 바뀌면 성분명이 바뀌어서, 지우지 않고 upsert만 하면 예전 이름의
   // 행이 고아로 남아 중복이 생긴다.) FK 때문에 자식 테이블부터 지운다.
   async function clearTable(table, pkColumn) {
