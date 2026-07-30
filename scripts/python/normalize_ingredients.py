@@ -1,6 +1,6 @@
 """products.csv + 8개 카테고리 price_ingredient CSV의 성분 텍스트를 정규화해서
-data/products.csv, data/ingredients.csv, data/product_ingredients.csv로 만든다.
-(Supabase 적재는 scripts/load_to_supabase.mjs가 이 세 파일을 읽어서 수행)
+data/supabase/products.csv, data/supabase/ingredients.csv, data/supabase/product_ingredients.csv로 만든다.
+(Supabase 적재는 scripts/node/load_to_supabase.mjs가 이 세 파일을 읽어서 수행)
 
 정규화 규칙 (raw ingredient 텍스트의 알려진 문제들):
 1. 여러 줄(\\r\\n)로 된 텍스트는 콤마가 가장 많은 줄만 실제 성분 리스트로 취급하고
@@ -26,9 +26,9 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent.parent
-OUT_DIR = ROOT / "data"
-RAW_DIR = OUT_DIR / "olive_crwl"
+ROOT = Path(__file__).resolve().parent.parent.parent
+OUT_DIR = ROOT / "data" / "supabase"
+RAW_DIR = ROOT / "data" / "olive_crwl"
 # csv/xlsx로 먼저 나뉘고, 그 안에서 다시 용도별(50개 근사표본/전체크롤링/원본크롤링/성분매핑)로 나뉘어 있다.
 ALL_DIR = RAW_DIR / "price_ingredient_all" / "csv"
 FIFTY_DIR = RAW_DIR / "price_ingredient_50" / "csv"
@@ -130,7 +130,7 @@ def clean_token(token: str, is_last: bool) -> str:
 
 
 def load_standard_name_map() -> dict[str, str]:
-    """식약처 성분사전 '표준화명칭목록'(별첨1, data/standard_ingredient_names.csv 로 추출됨)에서
+    """식약처 성분사전 '표준화명칭목록'(별첨1, data/supabase/standard_ingredient_names.csv 로 추출됨)에서
     구명칭(alias) -> 표준 성분명 매핑을 만든다. 표준명 자기 자신도 항등 매핑으로 포함.
     """
     path = OUT_DIR / "standard_ingredient_names.csv"
@@ -174,14 +174,14 @@ def parse_ingredient_list(raw) -> list[str]:
 
 
 def load_effect_mapping() -> pd.DataFrame:
-    """ingredient_effect_mapping_성분매핑.csv(2,454개 원본 고유 성분 목록)를 정규화한다.
+    """ingredient_effect_mapping_성분매핑(Sonnet5).csv(2,454개 원본 고유 성분 목록)를 정규화한다.
 
     이 목록 자체도 노이즈가 있다: "1,2-헥산다이올*" / "1,2 -헥산다이올" 같은 표기 흔들림이
     정규화 후 같은 이름으로 합쳐지고(의도된 동작), "2-헥산다이올@정제수@판테놀@..." 처럼
     성분 리스트 전체가 한 행에 잘못 들어간 깨진 행도 섞여 있다(제외).
     같은 이름으로 합쳐진 경우 빈도(상품수)가 가장 큰 행의 태그 정보를 대표값으로 쓴다.
     """
-    df = pd.read_csv(MAPPING_DIR / "ingredient_effect_mapping_성분매핑.csv")
+    df = pd.read_csv(MAPPING_DIR / "ingredient_effect_mapping_성분매핑(Sonnet5).csv")
     df = df[~df["ingredient"].astype(str).str.contains("@", regex=False)]
     df["name"] = df["ingredient"].map(
         lambda s: STANDARD_NAME_MAP.get(c := clean_token(str(s), is_last=True), c)

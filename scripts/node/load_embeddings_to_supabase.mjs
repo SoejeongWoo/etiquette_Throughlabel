@@ -1,4 +1,4 @@
-// data/product_embeddings.csv (scripts/build_ingredient_embeddings.py 출력)를 products.embedding 컬럼에 적재.
+// data/supabase/product_embeddings.csv (scripts/python/build_ingredient_embeddings.py 출력)를 products.embedding 컬럼에 적재.
 // 실행 전: supabase/migrations/20260730150000_ingredient_embeddings.sql 적용 필요.
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
@@ -7,8 +7,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const DATA_DIR = path.join(ROOT, "data");
+const ROOT = path.dirname(path.dirname(path.dirname(fileURLToPath(import.meta.url))));
+const DATA_DIR = path.join(ROOT, "data", "supabase");
 const CONCURRENCY = 20;
 
 const url = process.env.SUPABASE_URL;
