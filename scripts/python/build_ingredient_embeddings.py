@@ -1,6 +1,6 @@
-# data/product_ingredients.csv + ingredients.csv + products.csv 를 조합해
+# data/supabase/product_ingredients.csv + ingredients.csv + products.csv 를 조합해
 # 제품별 "성분 조합" 문장을 만들고, 한국어 문장임베딩 모델로 벡터화한다.
-# 출력: data/product_embeddings.csv (product_id, embedding)
+# 출력: data/supabase/product_embeddings.csv (product_id, embedding)
 import csv
 import json
 from collections import defaultdict
@@ -9,8 +9,8 @@ from pathlib import Path
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = ROOT / "data"
+ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = ROOT / "data" / "supabase"
 MODEL_NAME = "jhgan/ko-sroberta-multitask"
 TOP_N_INGREDIENTS = 20
 
