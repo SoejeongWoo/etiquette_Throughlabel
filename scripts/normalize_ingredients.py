@@ -28,11 +28,45 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "data"
+RAW_DIR = OUT_DIR / "olive_crwl"  # 크롤링 원본 산출물 위치 (csv/xlsx/report는 여기로 정리됨)
 
-PRICE_CATEGORIES = [
-    "cream", "toner", "serum", "suncream",
-    "lotion", "essence", "ampoule", "mist",
+# 올리브영 스킨케어 전체 크롤링(dispCatNo 5개 통짜 카테고리, "_all")이 끝난 카테고리는
+# 베스트 50개 근사 표본("_50")보다 그걸 우선 사용한다. essence/serum/ampoule은 애초에
+# 올리브영에 독립 카테고리가 없어 "에센스/세럼/앰플" 통합 목록에서 키워드로 골라낸
+# 근사 데이터였으므로, 통합 전체 크롤링(essenceSerumAmpoule_all)이 준비되면 그 하나로
+# 대체하고 세 개의 근사 카테고리는 쓰지 않는다.
+PRICE_SOURCES = [
+    ("cream", "cream_price_ingredient_all.csv", "cream_price_ingredient_50.csv"),
+    ("toner", "skinToner_price_ingredient_all.csv", "toner_price_ingredient_50.csv"),
+    ("suncream", None, "suncream_price_ingredient_50.csv"),
+    ("lotion", "lotion_price_ingredient_all.csv", "lotion_price_ingredient_50.csv"),
+    ("mist", "mistOil_price_ingredient_all.csv", "mist_price_ingredient_50.csv"),
 ]
+ESSENCE_SERUM_AMPOULE_ALL = "essenceSerumAmpoule_price_ingredient_all.csv"
+ESSENCE_SERUM_AMPOULE_FALLBACK = [
+    ("essence", "essence_price_ingredient_50.csv"),
+    ("serum", "serum_price_ingredient_50.csv"),
+    ("ampoule", "ampoule_price_ingredient_50.csv"),
+]
+
+
+def resolve_price_sources() -> list[tuple[str, Path]]:
+    """(category_label, csv_path) 목록. "_all"이 있으면 그걸, 없으면 "_50" 근사치를 쓴다."""
+    resolved = []
+    for label, all_name, fallback_name in PRICE_SOURCES:
+        all_path = RAW_DIR / all_name if all_name else None
+        if all_path and all_path.exists():
+            resolved.append((label, all_path))
+        else:
+            resolved.append((label, RAW_DIR / fallback_name))
+
+    esa_path = RAW_DIR / ESSENCE_SERUM_AMPOULE_ALL
+    if esa_path.exists():
+        resolved.append(("essenceSerumAmpoule", esa_path))
+    else:
+        for label, fallback_name in ESSENCE_SERUM_AMPOULE_FALLBACK:
+            resolved.append((label, RAW_DIR / fallback_name))
+    return resolved
 
 LEADING_MARKER = re.compile(r"^.*?전\s*성분\s*[:：]\s*", re.S)
 LEADING_BRACKET = re.compile(r"^\s*\[[^\]]{0,40}\]\s*")
@@ -142,7 +176,7 @@ def load_effect_mapping() -> pd.DataFrame:
     성분 리스트 전체가 한 행에 잘못 들어간 깨진 행도 섞여 있다(제외).
     같은 이름으로 합쳐진 경우 빈도(상품수)가 가장 큰 행의 태그 정보를 대표값으로 쓴다.
     """
-    df = pd.read_csv(ROOT / "ingredient_effect_mapping_성분매핑.csv")
+    df = pd.read_csv(RAW_DIR / "ingredient_effect_mapping_성분매핑.csv")
     df = df[~df["ingredient"].astype(str).str.contains("@", regex=False)]
     df["name"] = df["ingredient"].map(
         lambda s: STANDARD_NAME_MAP.get(c := clean_token(str(s), is_last=True), c)
@@ -159,7 +193,7 @@ def build_products_dataset() -> tuple[pd.DataFrame, dict]:
     rows = []
     product_ingredients: dict[str, list[str]] = {}
 
-    products_csv = pd.read_csv(ROOT / "products.csv")
+    products_csv = pd.read_csv(RAW_DIR / "products.csv")
     for _, r in products_csv.iterrows():
         pid = str(r["product_id"])
         ing_list = parse_ingredient_list(r.get("ingredient"))
@@ -183,8 +217,8 @@ def build_products_dataset() -> tuple[pd.DataFrame, dict]:
             "raw_ingredient_text": r.get("ingredient"),
         })
 
-    for cat in PRICE_CATEGORIES:
-        df = pd.read_csv(ROOT / f"{cat}_price_ingredient_50.csv")
+    for cat, csv_path in resolve_price_sources():
+        df = pd.read_csv(csv_path)
         for idx, r in df.iterrows():
             goods_no = r.get("goods_no")
             pid = f"pi_{cat}_{goods_no}" if pd.notna(goods_no) else f"pi_{cat}_{idx:03d}"
