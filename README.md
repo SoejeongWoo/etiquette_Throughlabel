@@ -132,11 +132,13 @@ STEP1(스캔)~STEP2(제조사 DB)를 위한 원천 데이터를 실제 카메라
 명시해 실제 OCR 결과(`ocr_result`)와 혼동되지 않도록 한다.
 
 ### 산출물
-파일 위치는 모두 `data/olive_crwl/`(csv·xlsx·json·리포트 전부 이 폴더로 정리, 저장소 루트는 코드/문서만 유지).
+파일 위치는 모두 `data/olive_crwl/` 아래, 용도별 폴더 + 그 안에서 다시 `csv/`·`xlsx/`로 분리 보관한다(저장소 루트는 코드/문서만 유지).
 
-- `products.csv` / `products.xlsx` — 상품 1건당 1행: `product_id`, `category`, `product_name`, `brand_name`, `manufacturer`, `brand`, `manufacturer_confidence`, `ingredient`, `data_source`
-- `reviews.csv` / `reviews.xlsx` — 리뷰 1건당 1행, `product_id`로 products와 연결
-- `manufacturer_map.json` — STEP2 산출물. `manufacturer_confidence=high`인 상품만으로 제조사 기준 브랜드 그룹화, `has_alternative`(같은 공장을 공유하는 서로 다른 브랜드 2개 이상 여부) 포함
+- `products_reviews/{csv,xlsx}/` — `products.csv/.xlsx`(상품 1건당 1행: `product_id`, `category`, `product_name`, `brand_name`, `manufacturer`, `brand`, `manufacturer_confidence`, `ingredient`, `data_source`), `reviews.csv/.xlsx`(리뷰 1건당 1행, `product_id`로 연결), `manufacturer_map.json`(STEP2 산출물, `manufacturer_confidence=high`인 상품만으로 제조사 기준 브랜드 그룹화, `has_alternative` 포함)
+- `price_ingredient_50/{csv,xlsx}/` — 8개 카테고리 50개 근사표본 (아래 섹션 참고)
+- `price_ingredient_all/{csv,xlsx}/` — 전체 크롤링 결과 + `_raw` 원본(csv만)
+- `ingredient_mapping/{csv,xlsx}/` — 성분(조합)-효과 매핑 결과
+- `reports/` — 분석 리포트 `.txt`
 
 > 참고: 저장소 루트의 `data/`(예: `data/products.csv`, `data/ingredients.csv`, `data/standard_ingredient_names.csv`)는 Supabase 적재용으로 별도 정리된 팀 공용 데이터이며, 위 `data/olive_crwl/` 산출물과는 스키마·용도가 다르다. 혼동 주의.
 

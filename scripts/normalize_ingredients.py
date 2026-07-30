@@ -28,7 +28,12 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "data"
-RAW_DIR = OUT_DIR / "olive_crwl"  # 크롤링 원본 산출물 위치 (csv/xlsx/report는 여기로 정리됨)
+RAW_DIR = OUT_DIR / "olive_crwl"
+# csv/xlsx로 먼저 나뉘고, 그 안에서 다시 용도별(50개 근사표본/전체크롤링/원본크롤링/성분매핑)로 나뉘어 있다.
+ALL_DIR = RAW_DIR / "price_ingredient_all" / "csv"
+FIFTY_DIR = RAW_DIR / "price_ingredient_50" / "csv"
+PRODUCTS_DIR = RAW_DIR / "products_reviews" / "csv"
+MAPPING_DIR = RAW_DIR / "ingredient_mapping" / "csv"
 
 # 올리브영 스킨케어 전체 크롤링(dispCatNo 5개 통짜 카테고리, "_all")이 끝난 카테고리는
 # 베스트 50개 근사 표본("_50")보다 그걸 우선 사용한다. essence/serum/ampoule은 애초에
@@ -54,18 +59,18 @@ def resolve_price_sources() -> list[tuple[str, Path]]:
     """(category_label, csv_path) 목록. "_all"이 있으면 그걸, 없으면 "_50" 근사치를 쓴다."""
     resolved = []
     for label, all_name, fallback_name in PRICE_SOURCES:
-        all_path = RAW_DIR / all_name if all_name else None
+        all_path = ALL_DIR / all_name if all_name else None
         if all_path and all_path.exists():
             resolved.append((label, all_path))
         else:
-            resolved.append((label, RAW_DIR / fallback_name))
+            resolved.append((label, FIFTY_DIR / fallback_name))
 
-    esa_path = RAW_DIR / ESSENCE_SERUM_AMPOULE_ALL
+    esa_path = ALL_DIR / ESSENCE_SERUM_AMPOULE_ALL
     if esa_path.exists():
         resolved.append(("essenceSerumAmpoule", esa_path))
     else:
         for label, fallback_name in ESSENCE_SERUM_AMPOULE_FALLBACK:
-            resolved.append((label, RAW_DIR / fallback_name))
+            resolved.append((label, FIFTY_DIR / fallback_name))
     return resolved
 
 LEADING_MARKER = re.compile(r"^.*?전\s*성분\s*[:：]\s*", re.S)
@@ -176,7 +181,7 @@ def load_effect_mapping() -> pd.DataFrame:
     성분 리스트 전체가 한 행에 잘못 들어간 깨진 행도 섞여 있다(제외).
     같은 이름으로 합쳐진 경우 빈도(상품수)가 가장 큰 행의 태그 정보를 대표값으로 쓴다.
     """
-    df = pd.read_csv(RAW_DIR / "ingredient_effect_mapping_성분매핑.csv")
+    df = pd.read_csv(MAPPING_DIR / "ingredient_effect_mapping_성분매핑.csv")
     df = df[~df["ingredient"].astype(str).str.contains("@", regex=False)]
     df["name"] = df["ingredient"].map(
         lambda s: STANDARD_NAME_MAP.get(c := clean_token(str(s), is_last=True), c)
@@ -193,7 +198,7 @@ def build_products_dataset() -> tuple[pd.DataFrame, dict]:
     rows = []
     product_ingredients: dict[str, list[str]] = {}
 
-    products_csv = pd.read_csv(RAW_DIR / "products.csv")
+    products_csv = pd.read_csv(PRODUCTS_DIR / "products.csv")
     for _, r in products_csv.iterrows():
         pid = str(r["product_id"])
         ing_list = parse_ingredient_list(r.get("ingredient"))
