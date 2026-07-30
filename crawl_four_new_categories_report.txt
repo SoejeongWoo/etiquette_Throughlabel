@@ -1,0 +1,10 @@
+[pool:essence_ampoule_pool] 수집 432건
+[pool:mist_pool] 수집 157건
+[lotion_price_ingredient_50] 대상 상품 확보: 50개 (목표 50)
+[lotion_price_ingredient_50] 저장 완료 shape=(50, 12) 용량결측=2 공통성분=0개 ()
+[essence_price_ingredient_50] 대상 상품 확보: 50개 (목표 50)
+[essence_price_ingredient_50] 저장 완료 shape=(50, 12) 용량결측=0 공통성분=0개 ()
+[ampoule_price_ingredient_50] 대상 상품 확보: 50개 (목표 50)
+[ampoule_price_ingredient_50] 저장 완료 shape=(50, 12) 용량결측=0 공통성분=2개 (글리세린(50/50), 정제수(49/50))
+[mist_price_ingredient_50] 대상 상품 확보: 50개 (목표 50)
+[mist_price_ingredient_50] 저장 완료 shape=(50, 12) 용량결측=3 공통성분=0개 ()

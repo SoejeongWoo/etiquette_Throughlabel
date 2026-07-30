@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+
+# Excel lock files
+*~$*
+*.png
+*.html
+
+# Jupyter
+.ipynb_checkpoints/

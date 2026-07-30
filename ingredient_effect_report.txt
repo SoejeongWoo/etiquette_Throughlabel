@@ -1,0 +1,26 @@
+분석 대상: cream, toner, serum, suncream, lotion, essence, ampoule, mist 8개 카테고리, 총 400개 상품
+차별화_ingredient 고유 성분 수: 2454개
+효과 매핑 완료: 180개 (빈도 10 이상 전량, low-confidence 3개 포함) -> 전체 등장횟수의 59.8% 커버
+
+=== 효과 조합 TOP 15 (상품 수 기준) ===
+  [ 73개] 미백+보습+진정+탄력_주름+피지_모공+항산화  (ampoule:16, cream:13, lotion:11, serum:10, essence:9, mist:7, toner:5, suncream:2)
+  [ 30개] 미백+보습+자외선차단+진정+탄력_주름+피지_모공+항산화  (suncream:24, serum:3, ampoule:2, cream:1)
+  [ 30개] 보습+진정  (toner:12, essence:7, ampoule:4, mist:3, cream:2, serum:1, lotion:1)
+  [ 24개] 보습+진정+항산화  (lotion:6, cream:5, toner:4, serum:3, mist:3, essence:2, ampoule:1)
+  [ 22개] 보습+진정+탄력_주름+항산화  (ampoule:6, mist:5, serum:4, toner:3, cream:2, lotion:1, essence:1)
+  [ 20개] 미분류  (mist:13, essence:3, cream:1, toner:1, serum:1, lotion:1)
+  [ 16개] 미백+보습+진정+탄력_주름+피지_모공  (essence:7, lotion:3, toner:2, serum:2, ampoule:1, mist:1)
+  [ 16개] 미백+보습+진정+피지_모공+항산화  (cream:6, serum:4, toner:3, essence:2, ampoule:1)
+  [ 15개] 보습+항산화  (cream:4, toner:4, lotion:2, essence:2, serum:1, ampoule:1, mist:1)
+  [ 14개] 보습  (essence:5, lotion:4, serum:3, toner:2)
+  [  9개] 보습+자외선차단+진정+항산화  (suncream:7, cream:2)
+  [  8개] 미백+보습+탄력_주름+피지_모공+항산화  (lotion:2, ampoule:2, mist:2, cream:1, serum:1)
+  [  7개] 미백+보습+피지_모공+항산화  (essence:3, lotion:2, serum:1, mist:1)
+  [  7개] 미백+보습+자외선차단+진정+컨디셔닝_광채+탄력_주름+피지_모공+항산화  (suncream:4, serum:2, ampoule:1)
+  [  7개] 미백+보습+진정+컨디셔닝_광채+탄력_주름+피지_모공+항산화  (lotion:3, cream:1, serum:1, essence:1, ampoule:1)
+
+=== 카테고리별 상위 조합 ===
+[cream] 미백+보습+진정+탄력_주름+피지_모공+항산화(13), 미백+보습+진정+피지_모공+항산화(6), 보습+진정+항산화(5)
+[toner] 보습+진정(12), 미백+보습+진정+탄력_주름+피지_모공+항산화(5), 보습+항산화(4)
+[serum] 미백+보습+진정+탄력_주름+피지_모공+항산화(10), 보습+진정+탄력_주름+항산화(4), 미백+보습+진정+피지_모공+항산화(4)
+[suncream] 미백+보습+자외선차단+진정+탄력_주름+피지_모공+항산화(24), 보습+자외선차단+진정+항산화(7), 미백+보습+자외선차단+진정+컨디셔닝_광채+탄력_주름+피지_모공+항산화(4)
