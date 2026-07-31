@@ -1,7 +1,7 @@
 """식약처 성분사전 '표준화명칭목록' PDF(별첨1)를 표 구조 그대로 추출해서
 data/supabase/standard_ingredient_names.csv 로 저장한다. (성분코드, 표준성분명, 표준영문명, 구명칭, 구영문명)
 
-이 CSV가 scripts/python/normalize_ingredients.py 에서 구명칭 -> 표준성분명 매핑의 기준이 된다.
+이 CSV가 code/python/normalize_ingredients.py 에서 구명칭 -> 표준성분명 매핑의 기준이 된다.
 """
 
 import sys

@@ -1,5 +1,5 @@
 // 기준 제품(product_id)과 성분/효과가 비슷한 제품을 코사인 유사도 + 필터로 검색.
-// 사용법: node scripts/search_similar_products.mjs <product_id> [category] [minPrice] [maxPrice] [limit]
+// 사용법: node code/node/search_similar_products.mjs <product_id> [category] [minPrice] [maxPrice] [limit]
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
 
@@ -12,7 +12,7 @@ const supabase = createClient(url, key);
 
 const [, , anchorId, categoryFilter, minPrice, maxPrice, limit] = process.argv;
 if (!anchorId) {
-  console.error("사용법: node scripts/search_similar_products.mjs <product_id> [category] [minPrice] [maxPrice] [limit]");
+  console.error("사용법: node code/node/search_similar_products.mjs <product_id> [category] [minPrice] [maxPrice] [limit]");
   process.exit(1);
 }
 

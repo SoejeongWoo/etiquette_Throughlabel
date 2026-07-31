@@ -106,10 +106,11 @@ ODM 중심 K-뷰티 생산 구조상, 동일 공장에서 생산된 제품이 �
 |---|---|
 | `data/olive_crwl/` | 올리브영 크롤링 원천 데이터 (하위 구조는 "이 저장소의 역할" 참고) |
 | `data/supabase/` | 정규화되어 Supabase에 적재되는 팀 공용 데이터: `products.csv`, `ingredients.csv`, `product_ingredients.csv`, `product_embeddings.csv`, `standard_ingredient_names.csv` |
-| `notebooks/` | 크롤링 노트북 (`olive_crwl_clean.ipynb`) |
-| `logs/` | 크롤링 진행 로그 |
-| `scripts/python/` | 크롤링 후처리 파이썬 스크립트 (성분 정규화, 표준명칭 추출, 임베딩 생성) |
-| `scripts/node/` | Supabase 적재·유사도 검색·추천 Node 스크립트 |
+| `code/notebooks/` | 크롤링 노트북 (`olive_crwl_clean.ipynb`) |
+| `code/logs/` | 크롤링 진행 로그 |
+| `code/python/` | 크롤링 후처리 파이썬 스크립트 (성분 정규화, 표준명칭 추출, 임베딩 생성) |
+| `code/node/` | Supabase 적재·유사도 검색·추천 Node 스크립트 |
+| `code/package.json`, `code/requirements.txt` | Node/Python 의존성 정의 |
 | `supabase/` | Supabase 마이그레이션·설정 |
 
 ## 파이프라인 (STEP)
@@ -156,7 +157,7 @@ STEP1(스캔)~STEP2(제조사 DB)를 위한 원천 데이터를 실제 카메라
 > 참고: `data/supabase/`(예: `data/supabase/products.csv`, `data/supabase/ingredients.csv`, `data/supabase/standard_ingredient_names.csv`)는 Supabase 적재용으로 별도 정리된 팀 공용 데이터이며, 위 `data/olive_crwl/` 산출물과는 스키마·용도가 다르다. 혼동 주의.
 
 ### 실행
-`notebooks/olive_crwl_clean.ipynb`의 셀을 순서대로 실행하면 `CATEGORY_IDS`에 등록된 카테고리를 크롤링하여 위 세 산출물을 생성한다. 규모 조절(`max_products`, `max_reviews_per_product`)과 카테고리 추가 방법은 노트북 하단 안내 셀을 참고한다.
+`code/notebooks/olive_crwl_clean.ipynb`의 셀을 순서대로 실행하면 `CATEGORY_IDS`에 등록된 카테고리를 크롤링하여 위 세 산출물을 생성한다. 규모 조절(`max_products`, `max_reviews_per_product`)과 카테고리 추가 방법은 노트북 하단 안내 셀을 참고한다.
 
 ## 성분·가격 비교 테이블 (8개 카테고리 × 50개)
 `data/olive_crwl/price_ingredient_50/{csv,xlsx}/{category}_price_ingredient_50.csv` / `.xlsx` — cream, toner, serum, suncream, lotion, essence, ampoule, mist.
@@ -170,7 +171,7 @@ STEP1(스캔)~STEP2(제조사 DB)를 위한 원천 데이터를 실제 카메라
 - **essence / ampoule 주의**: 올리브영에 독립 카테고리ID가 없다. "에센스/세럼/앰플" 통합 목록(베스트순 최대 384개)에서 상품명에 "에센스"(단 "세럼"·"앰플" 미포함) / "앰플" 키워드가 있는 것만 골라낸 **근사 데이터**이며, 올리브영 공식 서브카테고리 분류가 아니다.
 - **mist 주의**: "미스트/오일" 통합 카테고리에서 상품명에 "미스트"·"스프레이"가 포함된 것만 선별했다. 아벤느 오 떼르말처럼 브랜드명만으로 미스트임을 알 수 있는 일부 온천수 미스트류는 이름 필터에 안 걸려 빠졌을 수 있다.
 - **알려진 한계(미해결)**: 본품+증정품 세트 상품(예: 빌리프)은 두 상품의 전성분이 이어붙어 있어 `ingredient` 길이가 비정상적으로 길다(100개 이상). 분리 로직이 없으므로 성분 개수·비율 계산 시 이런 행은 왜곡될 수 있다.
-- 위 8개 표를 만든 크롤링 스크립트는 아직 이 저장소에 없다(세션 중 임시 스크립트로 실행). `notebooks/olive_crwl_clean.ipynb`와는 별개 파이프라인이며, 재크롤링/확장이 필요하면 스크립트부터 새로 작성해야 한다.
+- 위 8개 표를 만든 크롤링 스크립트는 아직 이 저장소에 없다(세션 중 임시 스크립트로 실행). `code/notebooks/olive_crwl_clean.ipynb`와는 별개 파이프라인이며, 재크롤링/확장이 필요하면 스크립트부터 새로 작성해야 한다.
 
 ## 스킨케어 전체 크롤링 (`{category}_price_ingredient_all.csv` / `.xlsx`)
 위 "50개씩" 표와 별개로, 올리브영 스킨케어 5개 서브카테고리 **전체**(스킨/토너 383·에센스/세럼/앰플 938·크림 773·로션 273·미스트/오일 157, 총 약 2,524개)를 크롤링하는 작업.
