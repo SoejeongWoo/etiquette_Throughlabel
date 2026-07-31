@@ -43,7 +43,7 @@ MAPPING_DIR = RAW_DIR / "ingredient_mapping" / "csv"
 PRICE_SOURCES = [
     ("cream", "cream_price_ingredient_all.csv", "cream_price_ingredient_50.csv"),
     ("toner", "skinToner_price_ingredient_all.csv", "toner_price_ingredient_50.csv"),
-    ("suncream", None, "suncream_price_ingredient_50.csv"),
+    ("suncream", "suncream_price_ingredient_all.csv", "suncream_price_ingredient_50.csv"),
     ("lotion", "lotion_price_ingredient_all.csv", "lotion_price_ingredient_50.csv"),
     ("mist", "mistOil_price_ingredient_all.csv", "mist_price_ingredient_50.csv"),
 ]
