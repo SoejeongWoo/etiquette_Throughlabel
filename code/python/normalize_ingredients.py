@@ -1,6 +1,6 @@
 """products.csv + 8개 카테고리 price_ingredient CSV의 성분 텍스트를 정규화해서
 data/supabase/products.csv, data/supabase/ingredients.csv, data/supabase/product_ingredients.csv로 만든다.
-(Supabase 적재는 scripts/node/load_to_supabase.mjs가 이 세 파일을 읽어서 수행)
+(Supabase 적재는 code/node/load_to_supabase.mjs가 이 세 파일을 읽어서 수행)
 
 정규화 규칙 (raw ingredient 텍스트의 알려진 문제들):
 1. 여러 줄(\\r\\n)로 된 텍스트는 콤마가 가장 많은 줄만 실제 성분 리스트로 취급하고

@@ -1,5 +1,5 @@
 // data/supabase/{products,ingredients,product_ingredients}.csv를 Supabase에 적재.
-// 실행 전: scripts/python/normalize_ingredients.py 로 data/supabase/*.csv 생성, .env에 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 설정.
+// 실행 전: code/python/normalize_ingredients.py 로 data/supabase/*.csv 생성, .env에 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 설정.
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
 import { parse } from "csv-parse/sync";

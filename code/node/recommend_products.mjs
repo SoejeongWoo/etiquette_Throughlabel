@@ -1,7 +1,7 @@
 // 유사도 검색(match_products)으로 넓게 후보를 뽑은 뒤, 가격/용량 메타데이터를 섞어 최종 순위를 매긴다.
 // 1단계(recall): 코사인 유사도로 후보 풀(기본 30개) 확보
 // 2단계(rerank): 유사도 + 가격 매력도 + 용량 근접도를 가중합해 재정렬
-// 사용법: node scripts/recommend_products.mjs <product_id> [category] [limit] [wSimilarity] [wPrice] [wVolume]
+// 사용법: node code/node/recommend_products.mjs <product_id> [category] [limit] [wSimilarity] [wPrice] [wVolume]
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
 
@@ -16,7 +16,7 @@ const CANDIDATE_POOL = 30;
 
 const [, , anchorId, categoryArg, limitArg, wSimArg, wPriceArg, wVolumeArg] = process.argv;
 if (!anchorId) {
-  console.error("사용법: node scripts/recommend_products.mjs <product_id> [category] [limit] [wSimilarity] [wPrice] [wVolume]");
+  console.error("사용법: node code/node/recommend_products.mjs <product_id> [category] [limit] [wSimilarity] [wPrice] [wVolume]");
   process.exit(1);
 }
 
